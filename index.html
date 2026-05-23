@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blessing Camp 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Mitr:wght@300;400;500;600&family=Prompt:wght@300;400;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#C9A84C;--gold2:#F5D78E;--gold3:#8B6914;
+  --dark:#0A0E17;--dark2:#0F1825;--dark3:#162030;
+  --white:rgba(255,255,255,.95);--muted:rgba(255,255,255,.55);
+  --accent:#4A9EFF;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--dark);font-family:'Mitr',sans-serif;cursor:default;}
+
+/* ── DECK ── */
+.deck{width:100%;height:100vh;position:relative;overflow:hidden;}
+
+/* ── SLIDES ── */
+.slide{
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;
+  transition:opacity .7s ease,transform .7s cubic-bezier(.4,0,.2,1);
+  transform:scale(1.04);
+}
+.slide.active{opacity:1;pointer-events:all;transform:scale(1);}
+.slide.prev{opacity:0;transform:scale(.96) translateX(-3%);}
+
+/* ── PROGRESS BAR ── */
+#progress{
+  position:fixed;top:0;left:0;height:3px;
+  background:linear-gradient(90deg,var(--gold3),var(--gold),var(--gold2));
+  transition:width .5s ease;z-index:999;
+  box-shadow:0 0 12px rgba(201,168,76,.6);
+}
+
+/* ── COUNTER ── */
+#counter{
+  position:fixed;bottom:22px;right:28px;z-index:999;
+  font-family:'Prompt',sans-serif;font-size:13px;font-weight:300;
+  color:rgba(255,255,255,.35);letter-spacing:2px;
+}
+
+/* ── NAV HINT ── */
+#nav-hint{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+  display:flex;gap:14px;z-index:999;
+}
+.dot-nav{
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(255,255,255,.2);
+  cursor:pointer;transition:all .3s;
+}
+.dot-nav.on{background:var(--gold);width:24px;border-radius:4px;}
+
+/* ── NAV BUTTONS ── */
+.nav-btn{
+  position:fixed;top:50%;transform:translateY(-50%);
+  z-index:998;width:48px;height:48px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(10,14,23,.7);backdrop-filter:blur(12px);
+  color:rgba(255,255,255,.6);font-size:18px;cursor:pointer;
+  transition:all .25s;display:flex;align-items:center;justify-content:center;
+}
+.nav-btn:hover{border-color:var(--gold);color:var(--gold);box-shadow:0 0 20px rgba(201,168,76,.25);}
+#btnP{left:16px;}#btnN{right:16px;}
+
+/* ── SHARED ── */
+.gold-line{
+  width:60px;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  margin:0 auto 24px;
+}
+.section-tag{
+  font-family:'Prompt',sans-serif;font-size:11px;font-weight:400;
+  letter-spacing:4px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:12px;display:block;
+}
+.big-title{
+  font-family:'Prompt',sans-serif;font-weight:800;
+  color:var(--white);line-height:1.05;
+}
+.sub-text{color:var(--muted);line-height:1.7;}
+
+/* ── PHOTO FRAME ── */
+.photo-frame{
+  border-radius:12px;overflow:hidden;position:relative;
+  background:#1a2535;
+  box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.06);
+}
+.photo-frame img{width:100%;height:100%;object-fit:cover;display:block;}
+.photo-frame .swap-hint{
+  position:absolute;inset:0;
+  background:rgba(201,168,76,.08);
+  border:2px dashed rgba(201,168,76,.25);border-radius:12px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  color:rgba(201,168,76,.5);font-size:12px;gap:6px;
+  opacity:0;transition:.3s;
+}
+.photo-frame:hover .swap-hint{opacity:1;}
+.photo-frame .swap-hint span{font-size:22px;}
+
+/* ── LABEL OVER PHOTO ── */
+.photo-label{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(0deg,rgba(0,0,0,.75) 0%,transparent 100%);
+  padding:28px 16px 14px;
+  color:rgba(255,255,255,.9);font-size:14px;font-weight:500;
+  font-family:'Prompt',sans-serif;
+}
+
+/* ══════════════════════════
+   SLIDE 1 — HERO
+══════════════════════════ */
+#s1{flex-direction:column;text-align:center;overflow:hidden;}
+.bg-hero{
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 120% 80% at 50% 60%,#0d2040 0%,#0A0E17 70%);
+  z-index:0;
+}
+.star-field{position:absolute;inset:0;z-index:1;overflow:hidden;}
+.star{position:absolute;border-radius:50%;background:white;animation:twinkle var(--d,3s) ease-in-out infinite;}
+@keyframes twinkle{0%,100%{opacity:.1;transform:scale(1);}50%{opacity:var(--op,.8);transform:scale(1.3);}}
+
+.hero-inner{position:relative;z-index:2;text-align:center;}
+.blessing-eyebrow{
+  font-family:'Prompt',sans-serif;font-size:clamp(11px,1.5vw,14px);
+  letter-spacing:6px;text-transform:uppercase;
+  color:var(--gold);margin-bottom:24px;
+  animation:fadeIn 1.2s ease .3s backwards;
+}
+.blessing-title{
+  font-family:'Prompt',sans-serif;
+  font-size:clamp(64px,12vw,140px);
+  font-weight:900;
+  background:linear-gradient(135deg,#e8c87a 0%,#fff5d0 40%,#c9a030 70%,#f5e09a 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:0.95;letter-spacing:-1px;
+  animation:fadeIn 1s ease .6s backwards,shimmer 4s ease-in-out 2s infinite;
+  filter:drop-shadow(0 0 60px rgba(201,168,76,.3));
+}
+@keyframes shimmer{
+  0%,100%{filter:drop-shadow(0 0 40px rgba(201,168,76,.2));}
+  50%{filter:drop-shadow(0 0 80px rgba(201,168,76,.5));}
+}
+.camp-word{
+  font-family:'Prompt',sans-serif;
+  font-size:clamp(28px,5vw,58px);
+  font-weight:300;letter-spacing:12px;text-transform:uppercase;
+  color:rgba(255,255,255,.7);margin-top:4px;
+  animation:fadeIn 1s ease .9s backwards;
+}
+.year-pill{
+  display:inline-block;
+  border:1px solid rgba(201,168,76,.4);
+  padding:8px 36px;border-radius:50px;
+  font-family:'Prompt',sans-serif;font-size:clamp(14px,2vw,18px);font-weight:300;
+  color:var(--gold2);letter-spacing:4px;
+  margin-top:32px;
+  background:rgba(201,168,76,.06);
+  backdrop-filter:blur(4px);
+  animation:fadeIn 1s ease 1.2s backwards;
+}
+.scroll-cta{
+  position:absolute;bottom:36px;left:50%;transform:translateX(-50%);
+  color:rgba(255,255,255,.25);font-size:12px;letter-spacing:3px;
+  text-transform:uppercase;z-index:2;
+  animation:pulse 2.5s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:.3;}50%{opacity:.8;}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:none;}}
+
+/* ══════════════════════════
+   SLIDE 2 — LOCATION REVEAL
+══════════════════════════ */
+#s2{background:radial-gradient(ellipse 100% 100% at 50% 0%,#162038 0%,#0A0E17 60%);}
+#s2 .inner{text-align:center;max-width:900px;padding:40px;}
+#s2 .pre-text{
+  font-size:clamp(24px,2vw,28px);color:var(--muted);
+  letter-spacing:2px;margin-bottom:30px;
+}
+#s2 .loc-reveal{
+  font-family:'Prompt',sans-serif;font-weight:900;
+  font-size:clamp(48px,8vw,120px);
+  background:linear-gradient(135deg,#e8c87a,#fff5d0,#c9a030);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1;margin-bottom:8px;
+}
+#s2 .loc-sub{
+  font-family:'Prompt',sans-serif;font-size:clamp(18px,3vw,36px);
+  font-weight:300;color:rgba(255,255,255,.7);letter-spacing:3px;
+  margin-bottom:48px;
+}
+.badge-row{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px;}
+.badge-gold{
+  padding:9px 24px;border-radius:50px;
+  border:1px solid rgba(201,168,76,.3);
+  background:rgba(201,168,76,.07);
+  color:var(--gold2);font-size:14px;font-weight:400;
+  display:flex;align-items:center;gap:8px;
+}
+
+/* ══════════════════════════
+   SLIDES 3-8 — PHOTO PAIRS
+══════════════════════════ */
+.photo-pair-slide{
+  background:var(--dark2);
+  flex-direction:column;
+}
+.photo-pair-slide .inner{
+  width:90%;max-width:1200px;
+}
+.pair-header{
+  text-align:center;margin-bottom:24px;
+}
+.pair-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+.pair-grid .photo-frame{height:clamp(200px,32vh,380px);}
+
+/* ══════════════════════════
+   SLIDE 9 — SECTION DIVIDER
+══════════════════════════ */
+#s9{
+  background:radial-gradient(ellipse 100% 120% at 50% 100%,#0d2a1a 0%,#0A0E17 60%);
+  flex-direction:column;text-align:center;
+}
+#s9 .eye{font-size:64px;margin-bottom:20px;filter:drop-shadow(0 0 20px rgba(74,200,120,.4));}
+#s9 .section-big{
+  font-family:'Prompt',sans-serif;font-weight:800;
+  font-size:clamp(44px,8vw,96px);
+  background:linear-gradient(135deg,#6DDBA0,#a8f0c6,#3db877);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1;
+}
+.green-line{width:80px;height:2px;background:linear-gradient(90deg,transparent,#6DDBA0,transparent);margin:20px auto;}
+
+/* ══════════════════════════
+   SLIDES 10-14 — ACTIVITY SLIDES (3 photos)
+══════════════════════════ */
+.activity-slide{background:var(--dark2);flex-direction:column;}
+.activity-slide .inner{width:90%;max-width:1200px;}
+.tri-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.tri-grid .photo-frame{height:clamp(160px,26vh,300px);}
+
+/* ══════════════════════════
+   SLIDE 15 — DISTANCE / MAP
+══════════════════════════ */
+#s15{
+  background:radial-gradient(ellipse 100% 100% at 50% 0%,#162038 0%,#0A0E17 70%);
+  flex-direction:column;
+}
+#s15 .inner{width:90%;max-width:1100px;display:flex;gap:48px;align-items:center;flex-wrap:wrap;}
+#s15 .text-col{flex:1;min-width:260px;}
+#s15 .map-col{flex:1.4;min-width:300px;}
+.stat-row{display:flex;gap:32px;margin:24px 0;flex-wrap:wrap;}
+.stat-box{
+  flex:1;min-width:110px;
+  border:1px solid rgba(201,168,76,.2);
+  border-radius:16px;padding:20px 16px;text-align:center;
+  background:rgba(201,168,76,.04);
+}
+.stat-num{
+  font-family:'Prompt',sans-serif;font-size:38px;font-weight:800;
+  background:linear-gradient(135deg,var(--gold),var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.stat-label{font-size:12px;color:var(--muted);letter-spacing:1px;margin-top:4px;}
+
+/* ══════════════════════════
+   SLIDE 16 — CLOSING
+══════════════════════════ */
+#s16{
+  flex-direction:column;text-align:center;overflow:hidden;
+  background:radial-gradient(ellipse 120% 100% at 50% 50%,#1a1400 0%,#0A0E17 65%);
+}
+.close-inner{position:relative;z-index:2;}
+.close-sub{
+  font-family:'Prompt',sans-serif;font-size:clamp(14px,1.8vw,18px);
+  font-weight:300;color:var(--muted);letter-spacing:3px;
+  text-transform:uppercase;margin-bottom:20px;
+}
+.close-main{
+  font-family:'Prompt',sans-serif;font-weight:900;
+  font-size:clamp(48px,9vw,110px);
+  background:linear-gradient(135deg,#e8c87a 0%,#fff5d0 40%,#c9a030 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1;
+}
+.close-loc{
+  font-family:'Prompt',sans-serif;font-size:clamp(16px,2.5vw,28px);
+  font-weight:300;color:rgba(255,255,255,.55);
+  letter-spacing:4px;margin-top:12px;
+}
+.glow-ring{
+  position:absolute;
+  width:500px;height:500px;border-radius:50%;
+  border:1px solid rgba(201,168,76,.08);
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  animation:ringPulse 4s ease-in-out infinite;
+}
+.glow-ring:nth-child(2){width:700px;height:700px;animation-delay:1s;}
+.glow-ring:nth-child(3){width:900px;height:900px;animation-delay:2s;}
+@keyframes ringPulse{
+  0%,100%{opacity:.3;transform:translate(-50%,-50%) scale(1);}
+  50%{opacity:.6;transform:translate(-50%,-50%) scale(1.02);}
+}
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="counter"></div>
+<div id="nav-hint"></div>
+<button class="nav-btn" id="btnP" onclick="go(-1)">&#8249;</button>
+<button class="nav-btn" id="btnN" onclick="go(1)">&#8250;</button>
+
+<div class="deck">
+
+<!-- ══════════════════ S1 — HERO ══════════════════ -->
+<section class="slide active" id="s1">
+  <div class="bg-hero"></div>
+  <div class="star-field" id="stars"></div>
+  <div class="hero-inner">
+    <div class="blessing-title">Blessing</div>
+    <div class="camp-word">Camp</div>
+    <div class="year-pill">2 0 2 6</div>
+  </div>
+  <div class="scroll-cta">กดเพื่อเริ่ม &nbsp; →</div>
+</section>
+
+<!-- ══════════════════ S2 — LOCATION REVEAL ══════════════════ -->
+<section class="slide" id="s2">
+  <div class="inner">
+    <div class="gold-line"></div>
+    <div class="pre-text">ปีนี้เราจะพบกันที่ . . .</div>
+    <div class="loc-reveal">เพชรบุรี</div>
+    <div class="loc-sub">บ้านครูซ่า</div>
+    <div class="gold-line"></div>
+    <div class="badge-row">
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ S3 — ที่พัก บ้านหลัก ══════════════════ -->
+<section class="slide photo-pair-slide" id="s3">
+  <div class="inner">
+    <div class="pair-header">
+      <span class="section-tag">✦ &nbsp; ที่พัก &nbsp; ✦</span>
+      <div class="big-title" style="font-size:clamp(28px,4vw,52px);">บ้านครูซ่า</div>
+    </div>
+    <div class="pair-grid">
+      <div class="photo-frame">
+        <!-- 📷 รูปที่พัก หน้าบ้าน มุม 1 (หน้า 3 ซ้าย) -->
+        <img src="h1.JPG" alt="ที่พัก">
+        <div class="photo-label">หน้าบ้านครูซ่า</div>
+      </div>
+      <div class="photo-frame">
+        <!-- 📷 รูปที่พัก หน้าบ้าน มุม 2 (หน้า 3 ขวา - มีวิวภูเขา) -->
+        <img src="h2.JPG" alt="วิวภูเขา">
+        <div class="photo-label">วิวภูเขาจากบ้านครูซ่า</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ S4 — ที่พัก วิวภูเขา ══════════════════ -->
+<section class="slide photo-pair-slide" id="s4">
+  <div class="inner">
+    <div class="pair-header">
+      <span class="section-tag">✦ &nbsp; ที่พัก &nbsp; ✦</span>
+      <div class="big-title" style="font-size:clamp(28px,4vw,52px);">วิวสวยรอบบ้าน</div>
+    </div>
+    <div class="pair-grid">
+      <div class="photo-frame">
+        <!-- 📷 วิวภูเขา ตอนเช้า (หน้า 4 ซ้าย) -->
+        <img src="v1.JPG" alt="วิวภูเขา">
+        <div class="photo-label">วิวยามเช้า</div>
+      </div>
+      <div class="photo-frame">
+        <!-- 📷 วิวภูเขา ท้องฟ้าสีฟ้า (หน้า 4 ขวา) -->
+        <img src="v2.JPG" alt="วิวท้องฟ้า">
+        <div class="photo-label">วิวโล่ง ท้องฟ้าสวย</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════ S7 — ที่พัก สระ + BBQ ══════════════════ -->
+<section class="slide photo-pair-slide" id="s7">
+  <div class="inner">
+    <div class="pair-header">
+      <span class="section-tag">✦ &nbsp; ที่พัก &nbsp; ✦</span>
+      <div class="big-title" style="font-size:clamp(28px,4vw,52px);">สระว่ายน้ำ &amp; BBQ</div>
+    </div>
+    <div class="pair-grid">
+      <div class="photo-frame">
+        <!-- 📷 สระว่ายน้ำ ตอนพระอาทิตย์ตก (หน้า 7 ซ้าย) -->
+        <img src="v3.JPG" alt="สระ">
+        <div class="photo-label">สระว่ายน้ำ ยามเย็น</div>
+      </div>
+      <div class="photo-frame">
+        <!-- 📷 BBQ ริมสระ (หน้า 7 ขวา) -->
+        <img src="v4.JPG" alt="BBQ">
+        <div class="photo-label">BBQ ริมสระ ยามค่ำ</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ S9 — SECTION: ที่ท่องเที่ยว ══════════════════ -->
+<section class="slide" id="s9">
+  <div class="eye">🗺️</div>
+  <div class="green-line"></div>
+  <div class="section-big">ที่ท่องเที่ยว<br>&amp; กิจกรรม</div>
+  <div class="green-line"></div>
+  <div class="sub-text" style="margin-top:16px;font-size:clamp(14px,1.8vw,18px);">เพชรบุรี · แก่งกระจาน · ชะอำ · หัวหิน</div>
+</section>
+
+<!-- ══════════════════ S10 — ล่องแพให้อาหารลิง ══════════════════ -->
+<section class="slide activity-slide" id="s10">
+  <div class="inner">
+    <div class="pair-header">
+      <span class="section-tag">✦ &nbsp; กิจกรรม 01 &nbsp; ✦</span>
+      <div class="big-title" style="font-size:clamp(24px,3.5vw,46px);">ล่องแพให้อาหารลิง</div>
+      <div class="sub-text" style="font-size:14px;margin-top:6px;">เขื่อนแก่งกระจาน</div>
+    </div>
+    <div class="tri-grid">
+      <div class="photo-frame">
+        <!-- 📷 ล่องแพ มุม 1 (หน้า 9 ซ้าย) -->
+        <img src="boat1.png" alt="">
+      </div>
+      <div class="photo-frame">
+        <!-- 📷 ลิงว่ายน้ำ (หน้า 9 กลาง) -->
+        <img src="boat2.png" alt="">
+      </div>
+      <div class="photo-frame">
+        <!-- 📷 บนแพ (หน้า 9 ขวา) -->
+        <img src="boat3.png" alt="">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ S11 — ล่องแพเปียก ══════════════════ -->
+<section class="slide activity-slide" id="s11">
+  <div class="inner">
+    <div class="pair-header">
+      <span class="section-tag">✦ &nbsp; กิจกรรม 02 &nbsp; ✦</span>
+      <div class="big-title" style="font-size:clamp(24px,3.5vw,46px);">ล่องแพ</div>
+      <div class="sub-text" style="font-size:14px;margin-top:6px;">เขื่อนแก่งกระจาน</div>
+    </div>
+    <div class="tri-grid">
+      <div class="photo-frame">
+        <img src="boat4.png" alt="">
+      </div>
+      <div class="photo-frame">
+        <img src="boat5.png" alt="">
+      </div>
+      <div class="photo-frame">
+        <img src="boat6.png" alt="">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ S12 — หาดชะอำ ══════════════════ -->
+<section class="slide activity-slide" id="s12">
+  <div class="inner">
+    <div class="pair-header">
+      <span class="section-tag">✦ &nbsp; ที่เที่ยว 01 &nbsp; ✦</span>
+      <div class="big-title" style="font-size:clamp(24px,3.5vw,46px);">หาดชะอำ</div>
+    </div>
+    <div class="tri-grid">
+      <div class="photo-frame">
+        <img src="sea1.jpeg" alt="">
+      </div>
+      <div class="photo-frame">
+        <img src="sea2.png" alt="">
+      </div>
+      <div class="photo-frame">
+        <img src="sea3.png" alt="">
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ S15 — ระยะทาง ══════════════════ -->
+<section class="slide" id="s15">
+  <div class="inner">
+    <div class="text-col">
+      <span class="section-tag">✦ &nbsp; ระยะทาง &nbsp; ✦</span>
+      <div class="big-title" style="font-size:clamp(32px,5vw,60px);margin-bottom:16px;">กรุงเทพ → เพชรบุรี</div>
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="stat-num">~3</div>
+          <div class="stat-label">ชั่วโมง</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">~210</div>
+          <div class="stat-label">กิโลเมตร</div>
+        </div>
+      </div>
+      <div class="sub-text" style="font-size:24px;line-height:1.8;">
+        🛣️ ทางหลวงพิเศษ กทม.–เพชรบุรี<br>
+        📍 ปลายทาง: บ้านครูซ่า อ.ท่ายาง จ.เพชรบุรี<br>
+      </div>
+    </div>
+    <div class="map-col">
+      <div class="photo-frame" style="height:clamp(220px,40vh,420px);">
+        <!-- 📷 แผนที่ระยะทาง (หน้า 14) -->
+        <img src="map.png" alt="แผนที่">
+        <div class="swap-hint"><span>📷</span>วางรูปแผนที่ระยะทาง</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ S16 — CLOSING ══════════════════ -->
+<section class="slide" id="s16">
+  <div class="glow-ring"></div>
+  <div class="glow-ring"></div>
+  <div class="glow-ring"></div>
+  <div class="close-inner">
+    <div class="gold-line"></div>
+    <div class="close-sub">พบกันที่</div>
+    <div class="close-main">Blessing<br>Camp 2026</div>
+    <div class="close-loc">เพชรบุรี &nbsp;·&nbsp; บ้านครูซ่า</div>
+    <div class="gold-line" style="margin-top:24px;"></div>
+  </div>
+</section>
+
+</div><!-- deck -->
+
+<script>
+// ── STARS ──
+const sf=document.getElementById('stars');
+for(let i=0;i<160;i++){
+  const s=document.createElement('div');
+  s.className='star';
+  const sz=Math.random()*2.5+.5;
+  s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;--d:${2+Math.random()*5}s;--op:${.3+Math.random()*.7};animation-delay:${Math.random()*5}s`;
+  sf.appendChild(s);
+}
+
+// ── NAVIGATION ──
+const slides=Array.from(document.querySelectorAll('.slide'));
+const N=slides.length;
+let cur=0;
+
+const pipsEl=document.getElementById('nav-hint');
+slides.forEach((_,i)=>{
+  const p=document.createElement('div');
+  p.className='dot-nav'+(i===0?' on':'');
+  p.onclick=()=>goTo(i);
+  pipsEl.appendChild(p);
+});
+
+function goTo(n){
+  if(n===cur||n<0||n>=N)return;
+  slides[cur].classList.remove('active');
+  slides[cur].classList.add('prev');
+  setTimeout(()=>slides[cur].classList.remove('prev'),750);
+  cur=n;
+  slides[cur].classList.add('active');
+  document.querySelectorAll('.dot-nav').forEach((p,i)=>p.classList.toggle('on',i===cur));
+  document.getElementById('counter').textContent=(cur+1)+' / '+N;
+  document.getElementById('progress').style.width=((cur+1)/N*100)+'%';
+  document.getElementById('btnP').style.opacity=cur===0?'.2':'1';
+  document.getElementById('btnN').style.opacity=cur===N-1?'.2':'1';
+}
+function go(d){goTo(cur+d);}
+
+// init
+document.getElementById('counter').textContent='1 / '+N;
+document.getElementById('progress').style.width=(1/N*100)+'%';
+document.getElementById('btnP').style.opacity='.2';
+
+// keyboard & swipe
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'||e.key===' ')go(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp')go(-1);
+});
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX,{passive:true});
+document.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>50)go(d<0?1:-1);},{passive:true});
+</script>
+</body>
+</html>
